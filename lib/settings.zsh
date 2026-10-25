@@ -14,6 +14,7 @@
 NITROSHELL_CONFIG_SECTIONS=(
     "prompt|Prompt display"
     "address|Proxy addresses"
+    "noproxy|Proxy exceptions"
     "proxy|Commands that require a proxy"
 )
 
@@ -62,8 +63,55 @@ nitroshell_config_address() {
         had=no; proxy_configured && had=yes
         apply_proxy_state
         # clearing the last address leaves nothing configured: remove what was exported
-        proxy_configured || unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY
+        proxy_configured || unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY no_proxy NO_PROXY
         update_proxy_info
+    done
+}
+
+# section "noproxy": hosts that bypass the proxy (PROXY_NO, exported as no_proxy/NO_PROXY)
+nitroshell_config_noproxy() {
+    local host start=1
+    local -a hosts items
+
+    while true; do
+        hosts=(${(s:,:)PROXY_NO})
+        items=("${hosts[@]}" "+ Add host")
+
+        NITROSHELL_SELECT_START=$start
+        nitroshell_select "Proxy exceptions (PROXY_NO)" "↑/↓ move  Enter select  d delete  q back" "${items[@]}"
+        start=$REPLY
+
+        case "$NITROSHELL_KEY" in
+            quit)
+                break
+                ;;
+            delete)
+                (( REPLY <= ${#hosts} )) || continue
+                hosts[REPLY]=()
+                ;;
+            enter)
+                (( REPLY > ${#hosts} )) || continue
+                nitroshell_read "Host to add, e.g. localhost, 10.0.0.0/8, .corp.local (empty to cancel): " || break
+                host=${${REPLY## #}%% #}
+                [[ -n "$host" ]] || continue
+
+                if [[ "$host" = *[[:space:],]* ]]; then
+                    nitroshell_error "One host at a time, without spaces or commas."
+                    continue
+                elif (( ${hosts[(Ie)$host]} )); then
+                    nitroshell_error "$host is already in the list."
+                    continue
+                fi
+
+                hosts+=($host)
+                start=${#hosts}
+                ;;
+        esac
+
+        PROXY_NO="${(j:,:)hosts}"
+        save_option PROXY_NO "$PROXY_NO"
+        # re-export right away if the proxy is on; with the proxy off or no addresses nothing is exported
+        apply_proxy_state
     done
 }
 

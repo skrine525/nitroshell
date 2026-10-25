@@ -41,6 +41,10 @@ fi
 : ${PROXY_HTTPS:=}
 : ${PROXY_ALL:=}
 
+# hosts that bypass the proxy (comma-separated, e.g. localhost,127.0.0.1,.corp.local); exported as
+# no_proxy/NO_PROXY together with the addresses above
+: ${PROXY_NO:=}
+
 # migrate the single PROXY_URL option
 if [[ -n "$PROXY_URL" && -z "$PROXY_HTTP$PROXY_HTTPS$PROXY_ALL" ]]; then
     PROXY_HTTP=$PROXY_URL PROXY_HTTPS=$PROXY_URL PROXY_ALL=$PROXY_URL
@@ -87,7 +91,7 @@ save_option() {
 # add options missing from the config file, so new keys appear after an update
 for opt in USE_SYNTAX_HIGHLIGHTING AUTO_DOWNLOAD_SYNTAX_HIGHLIGHTING_PLUGIN \
            USE_ZSH_AUTOSUGGESTIONS AUTO_DOWNLOAD_ZSH_AUTOSUGGESTIONS_PLUGIN \
-           PROMPT_MODE NEWLINE_BEFORE_PROMPT SHOW_GIT SHOW_PROXY SHOW_VENV REQUIRE_PROXY_FOR PROXY_HTTP PROXY_HTTPS PROXY_ALL; do
+           PROMPT_MODE NEWLINE_BEFORE_PROMPT SHOW_GIT SHOW_PROXY SHOW_VENV REQUIRE_PROXY_FOR PROXY_HTTP PROXY_HTTPS PROXY_ALL PROXY_NO; do
     if [[ ! -f "$NITROSHELL_CONFIG_FILE" ]] || ! grep -q "^$opt=" "$NITROSHELL_CONFIG_FILE"; then
         save_option $opt ${(P)opt}
     fi
