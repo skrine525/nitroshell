@@ -103,6 +103,7 @@ A different path can be set with the `NITROSHELL_CONFIG_FILE` variable in `~/.zs
 | `SHOW_PROXY` | `yes` / `no` | `yes` | Show in the prompt that a proxy is set in the shell |
 | `SHOW_VENV` | `yes` / `no` | `yes` | Show the active Python virtualenv |
 | `PROXY_HTTP`, `PROXY_HTTPS`, `PROXY_ALL` | proxy address | empty | Addresses that `Ctrl+P` and the menu switch on and off, e.g. `http://user:pass@host:3128` or `socks5://host:2080`; each one fills `http_proxy`/`HTTP_PROXY`, `https_proxy`/`HTTPS_PROXY` and `all_proxy`/`ALL_PROXY` respectively |
+| `PROXY_NO` | comma-separated hosts | empty | Hosts that bypass the proxy, e.g. `localhost,127.0.0.1,.corp.local`; exported as `no_proxy`/`NO_PROXY` while the proxy is on and removed when it is off |
 | `REQUIRE_PROXY_FOR` | space-separated commands | empty | Commands that refuse to start until a proxy is set in the shell |
 
 The list can be edited interactively: run `nitroshell`, choose **Settings**, then **Commands that require a proxy** (`Enter` on a command does nothing, `d` deletes the highlighted one, `+ Add command` adds a new one; changes apply immediately). Example: forbid running `claude` and `codex` without a proxy:
@@ -115,6 +116,8 @@ Only the presence of a proxy variable in the environment is checked, not whether
 
 The proxy addresses are edited in `nitroshell` → **Settings** → **Proxy addresses** (`Enter` turns the highlighted row into a text field right there: `Enter` applies, `Esc` cancels, `Ctrl+U` clears the text; `d` clears the address) or from **Proxy** in the main menu (`Ctrl+O`) while none is set. The first address you enter switches the proxy on. Once it is set, `Ctrl+P` (or that menu item) switches the proxy on and off in the current shell only: the on/off state is not saved, a new terminal starts with the proxy off, and `exec zsh` keeps it as it was. Without addresses `Ctrl+P` still switches off a proxy that comes from the environment (for example from `.zshrc`) and switches it back on; if there is none it only shows a hint.
 
+The proxy exceptions are edited like that list: **Settings** → **Proxy exceptions** (`d` deletes the highlighted host, `+ Add host` adds a new one; changes apply immediately).
+
 The prompt mode (**Settings** → **Prompt mode**, switches on `Enter`) and what is shown in the prompt (**Settings** → **Prompt display**) are written to `config/config.zsh` automatically, so your choice is kept between sessions.
 
 ## Key bindings
@@ -122,7 +125,7 @@ The prompt mode (**Settings** → **Prompt mode**, switches on `Enter`) and what
 | Key | Action |
 |---|---|
 | `Ctrl+P` | Switch the configured proxy on or off (the `switch-proxy` command does the same) |
-| `Ctrl+O` | Open the nitroshell menu: proxy switch, settings (prompt mode, prompt display: git, proxy, Python venv; proxy addresses; proxy commands) and update |
+| `Ctrl+O` | Open the nitroshell menu: proxy switch, settings (prompt mode, prompt display: git, proxy, Python venv; proxy addresses; proxy exceptions; proxy commands) and update |
 | `Ctrl+←` / `Ctrl+→` | Move one word back or forward |
 | `Ctrl+Del` | Delete the next word |
 | `Ctrl+U` | Delete everything up to the beginning of the line |

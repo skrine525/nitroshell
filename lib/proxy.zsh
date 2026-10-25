@@ -86,6 +86,13 @@ apply_proxy_state() {
         fi
     done
 
+    # the bypass list follows the same switch
+    if [[ "$PROXY_ENABLED" = yes && -n "$PROXY_NO" ]]; then
+        export no_proxy=$PROXY_NO NO_PROXY=$PROXY_NO
+    else
+        unset no_proxy NO_PROXY
+    fi
+
     update_proxy_info
 }
 
